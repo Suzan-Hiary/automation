@@ -1,60 +1,35 @@
 import re
 
-
-def find_numbers (numbers = []):
-    pattern = re.compile(r'(\d{3}[-.\s]??\d{3}[-.\s]??\d{4}|(\d{3})\s*\d{3}[-.\s]??\d{4}|\d{3}[-.\s]??\d{4})')
-    # other_formats = ['+', '(', ')', '.']
-    with open('assets/potential-contacts.txt', 'r') as file:
-        files = file.readlines()
-        for i in files:
-            if pattern.search(i):
-                number = pattern.search(i).group()
-                print(len(number))
-                if '.' in number:
-                    number = number.replace('.', '-')
-                if '+' in number:
-                    number = number.replace('+', '00')
-                if ')' in number:
-                    number = number.replace(')', '-')
-                if '(' in number:
-                    number = number.strip('(')
-                if '-' in number and len(number)==10:
-                    number = number.strip('-')
-                    number = f'{number[:3]}-{number[3:6]}-{number[5:]}'
-                if len(number) == 10:
-                    number = f'{number[:3]}-{number[3:5]}-{number[5:]}'
-                if len(number)==8:
-                    number = number.strip('-')
-                    number = '206'+ '-'+number
-                numbers.append(number)
-                numbers = sorted(numbers)
-    print(f"The Count of Numbers Collected is :{len(numbers)}")
-    return numbers
+phone_num_regex = r"[\+\d]?(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})"
 
 
-def find_emails (emails = []):
-    pattern = re.compile(r"\w+.\w+@\w+.\w+.(com|net|org|info|biz)")
-    with open('assets/potential-contacts.txt', 'r') as file:
-        files = file.readlines()
-        for i in files:
-            if pattern.search(i):
-                email = pattern.search(i).group()
-                emails.append(email)
-                emails = sorted(emails)
-    print(len(emails))
-    return emails
+with open("potential-contacts.txt" ,"r") as f:
+    file_content = f.read()
 
-def files_exporting():
-    with open('assets/phone_numbers.txt', 'w+') as file:
-        files = file.readlines()
-        for i in find_numbers():
-            file.write(f'{i}\n')
+phone_num_type = re.findall(phone_num_regex,file_content)
+print(len(phone_num_type))
+phone_num_type.sort()
+all_phone_num = []
+for phone_num in phone_num_type:
+    if phone_num not in all_phone_num:
+        all_phone_num.append(phone_num.replace("(","").replace(")","-").replace(".","-"))
 
-    with open('assets/emails.txt', 'w+') as file:
-        files = file.readlines()
-        for i in find_emails():
-            file.write(f'{str(i)}\n')
+with open("phone_numbers.txt","w") as file:
+    for email in all_phone_num:
+        file.writelines(f"{email}\n")
+    print("done")
+# print(all_phone_num)
+print(len(all_phone_num))
+email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+all_emails = re.findall(email_regex , file_content)
 
-files_exporting()
+all_emails.sort()
+emails = []
+for email in all_emails:
+    if email not in emails:
+        emails.append(email)
 
-
+with open("emails.txt","w") as file:
+    for email in emails:
+        file.writelines(f"{email}\n")
+    print("done")
